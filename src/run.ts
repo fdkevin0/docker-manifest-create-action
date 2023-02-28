@@ -35,7 +35,7 @@ export const run = async (inputs: Inputs): Promise<void> => {
 export const getSourceManifests = (tag: string, inputs: Pick<Inputs, 'digests' | 'suffixes'>) => {
   if (inputs.digests.length > 0) {
     const repository = tag.replace(/:.+?$/, '')
-    return inputs.digests.map((suffix) => `${repository}@${suffix}`)
+    return inputs.digests.map((suffix) => `--amend ${repository}@${suffix}`)
   }
   if (inputs.suffixes.length > 0) {
     return inputs.suffixes.map((suffix) => `${tag}${suffix}`)
