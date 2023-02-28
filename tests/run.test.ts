@@ -8,6 +8,7 @@ describe('run', () => {
     await run({
       tags: ['ghcr.io/int128/docker-manifest-create-action:main'],
       suffixes: ['-amd64', '-arm64'],
+      digests: [],
     })
     expect(exec.exec).toHaveBeenCalledWith('docker', [
       'manifest',
@@ -35,6 +36,7 @@ describe('run', () => {
         'ghcr.io/int128/docker-manifest-create-action:latest',
       ],
       suffixes: ['-amd64'],
+      digests: [],
     })
 
     // non-latest tag
@@ -77,18 +79,32 @@ describe('run', () => {
 
 describe('getSourceManifests', () => {
   test('a suffix', () => {
-    expect(getSourceManifests('ghcr.io/int128/docker-manifest-create-action:pr-1', ['-amd64'])).toStrictEqual([
-      'ghcr.io/int128/docker-manifest-create-action:pr-1-amd64',
-    ])
+    expect(
+      getSourceManifests('ghcr.io/int128/docker-manifest-create-action:pr-1', { suffixes: ['-amd64'], digests: [] })
+    ).toStrictEqual(['ghcr.io/int128/docker-manifest-create-action:pr-1-amd64'])
   })
 
   test('suffixes', () => {
     expect(
-      getSourceManifests('ghcr.io/int128/docker-manifest-create-action:pr-1', ['-amd64', '-arm64', '-ppc64le'])
+      getSourceManifests('ghcr.io/int128/docker-manifest-create-action:pr-1', {
+        suffixes: ['-amd64', '-arm64', '-ppc64le'],
+        digests: [],
+      })
     ).toStrictEqual([
       'ghcr.io/int128/docker-manifest-create-action:pr-1-amd64',
       'ghcr.io/int128/docker-manifest-create-action:pr-1-arm64',
       'ghcr.io/int128/docker-manifest-create-action:pr-1-ppc64le',
+    ])
+  })
+
+  test('a digest', () => {
+    expect(
+      getSourceManifests('ghcr.io/int128/docker-manifest-create-action:pr-1', {
+        suffixes: [],
+        digests: ['sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'],
+      })
+    ).toStrictEqual([
+      'ghcr.io/int128/docker-manifest-create-action@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
     ])
   })
 })
